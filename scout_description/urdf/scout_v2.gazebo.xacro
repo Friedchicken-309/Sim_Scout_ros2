@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<!--
+    Gazebo Classic variant of the scout_v2 description.
+
+    Differences to scout_v2.xacro (real robot):
+      * wheel joints become continuous and the left wheel axes are flipped to
+        +Y so that all four wheels spin "positive = forward" as
+        libgazebo_ros_diff_drive.so commands them
+      * adds wheel friction/contact parameters
+      * adds the diff-drive plugin (4-wheel skid steer via 2 wheel pairs)
+        and a joint-state publisher plugin for the wheels
+-->
+<robot name="scout_v2" xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Declare BEFORE the include: the first declaration of an arg wins in
+         xacro, so this file defaults to simulation mode even when the CLI
+         does not pass use_gazebo. -->
+    <xacro:arg name="use_gazebo" default="true"/>
+
+    <xacro:include filename="$(find scout_description)/urdf/scout_v2.xacro"/>
+
+    <!-- Per-wheel contact properties: skid steer needs high longitudinal
+         friction (mu1, rolling direction) and reduced lateral friction (mu2)
+         so the chassis can slide sideways while turning on the spot.
+         fdir1 "1 0 0" is the rolling direction in the wheel link frame. -->
+    <xacro:macro name="scout_wheel_sim" params="prefix">
+        <gazebo reference="${prefix}_wheel_link">
+            <mu1>1.0</mu1>
+            <mu2>0.5</mu2>
+            <fdir1>1 0 0</fdir1>
+            <kp>1e7</kp>
+            <kd>1.0</kd>
+            <minDepth>0.001</minDepth>
+            <maxVel>0.01</maxVel>
+            <maxContacts>64</maxContacts>
+        </gazebo>
+    </xacro:macro>
+    <xacro:scout_wheel_sim prefix="front_right"/>
+    <xacro:scout_wheel_sim prefix="front_left"/>
+    <xacro:scout_wheel_sim prefix="rear_left"/>
+    <xacro:scout_wheel_sim prefix="rear_right"/>
+
+    <!-- Drive: gazebo_ros_diff_drive with 2 wheel pairs is the officially
+         supported way to simulate a 4-wheel skid-steer robot on ROS 2
+         (see gazebo_ros_skid_steer_drive_demo.world). -->
+    <gazebo>
+        <plugin name="scout_diff_drive" filename="libgazebo_ros_diff_drive.so">
+            <num_wheel_pairs>2</num_wheel_pairs>
+
+            <left_joint>front_left_wheel</left_joint>
+            <right_joint>front_right_wheel</right_joint>
+            <left_joint>rear_left_wheel</left_joint>
+            <right_joint>rear_right_wheel</right_joint>
+
+            <wheel_separation>0.58306</wheel_separation>
+            <wheel_separation>0.58306</wheel_separation>
+            <wheel_diameter>0.32918</wheel_diameter>
+            <wheel_diameter>0.32918</wheel_diameter>
+
+            <max_wheel_torque>50</max_wheel_torque>
+            <max_wheel_acceleration>1.0</max_wheel_acceleration>
+
+            <update_rate>100</update_rate>
+            <!-- 1 = world pose ground truth, 0 = encoder integration -->
+            <odometry_source>1</odometry_source>
+            <publish_odom>true</publish_odom>
+            <publish_odom_tf>true</publish_odom_tf>
+            <!-- wheel TF is published by robot_state_publisher from
+                 /joint_states instead, avoids duplicate TF publishers -->
+            <publish_wheel_tf>false</publish_wheel_tf>
+            <odometry_frame>odom</odometry_frame>
+            <robot_base_frame>base_link</robot_base_frame>
+            <covariance_x>0.0001</covariance_x>
+            <covariance_y>0.0001</covariance_y>
+            <covariance_yaw>0.001</covariance_yaw>
+        </plugin>
+    </gazebo>
+
+    <!-- Publish wheel joint states so robot_state_publisher generates the
+         wheel TFs and the wheels visibly rotate in RViz. -->
+    <gazebo>
+        <plugin name="scout_joint_states" filename="libgazebo_ros_joint_state_publisher.so">
+            <joint_name>front_left_wheel</joint_name>
+            <joint_name>front_right_wheel</joint_name>
+            <joint_name>rear_left_wheel</joint_name>
+            <joint_name>rear_right_wheel</joint_name>
+            <update_rate>50</update_rate>
+        </plugin>
+    </gazebo>
+
+</robot>

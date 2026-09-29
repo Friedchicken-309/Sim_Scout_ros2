@@ -1,0 +1,43 @@
+# teleop_twist_joy 配置文件 - BEITONG AXIULUO3S 手柄
+# 轴 0: 左转/右转
+# 轴 1: 前进/后退
+# 按钮 8: 使能控制
+
+teleop_twist_joy_node:
+  ros__parameters:
+
+    # 线速度轴（前进/后退）
+    axis_linear:
+      x: 1
+
+    # 线速度缩放
+    scale_linear:
+      x: 1.0
+
+    # 线速度加速档
+    scale_linear_turbo:
+      x: 1.5
+
+    # 角速度轴（左转/右转）
+    axis_angular:
+      yaw: 0
+
+    # 角速度缩放
+    scale_angular:
+      yaw: 1.0
+
+    # 角速度加速档
+    scale_angular_turbo:
+      yaw: 1.5
+
+    # 使能按钮（死亡人开关）
+    enable_button: 8
+
+    # 加速档按钮（可选，设为 -1 表示不使用）
+    enable_turbo_button: 9
+
+    # 发布频率
+    publish_rate: 50.0
+
+    # 死区设置
+    deadzone: 0.1
