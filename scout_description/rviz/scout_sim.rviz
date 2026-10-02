@@ -31,6 +31,42 @@ Visualization Manager:
       Show Arrows: true
       Show Axes: true
       Show Names: true
+    - Class: rviz_default_plugins/PointCloud2
+      Name: D435 PointCloud
+      Enabled: true
+      Value: true
+      Color Transformer: RGB8
+      Size (Pixels): 2
+      Size (m): 0.02
+      Style: Flat Squares
+      Topic:
+        Value: /camera/depth/color/points
+        Depth: 5
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+    - Class: rviz_default_plugins/Image
+      Name: D435 Depth Image
+      Enabled: false
+      Value: false
+      Normalize Range: true
+      Topic:
+        Value: /camera/aligned_depth_to_color/image_raw
+        Depth: 5
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
+    - Class: rviz_default_plugins/Image
+      Name: D435 RGB Image
+      Enabled: false
+      Value: false
+      Normalize Range: true
+      Topic:
+        Value: /camera/color/image_raw
+        Depth: 5
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+        History Policy: Keep Last
   Global Options:
     Background Color: 48; 48; 48
     Fixed Frame: odom

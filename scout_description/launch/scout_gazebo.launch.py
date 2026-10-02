@@ -2,13 +2,16 @@ import launch
 import launch_ros
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import (DeclareLaunchArgument, IncludeLaunchDescription,
+                            SetEnvironmentVariable)
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
-from launch.substitutions import FindExecutable, LaunchConfiguration, Command, PathJoinSubstitution
+from launch.substitutions import (EnvironmentVariable, FindExecutable,
+                                  LaunchConfiguration, Command,
+                                  PathJoinSubstitution)
 
 
 def generate_launch_description():
@@ -21,6 +24,12 @@ def generate_launch_description():
         ),
         ' use_gazebo:=true',
     ])
+
+    # outdoor world (small_city) needs the models vendored in this package
+    gazebo_model_path = [EnvironmentVariable('GAZEBO_MODEL_PATH',
+                                             default_value=''), ':',
+                         PathJoinSubstitution([FindPackageShare('scout_description'),
+                                               'models'])]
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution(
@@ -88,12 +97,12 @@ def generate_launch_description():
                               description='Start joystick teleop (joy + teleop_twist_joy)'),
         DeclareLaunchArgument('joy_device_id', default_value='0',
                               description='Joystick device id (/dev/input/js<X>)'),
-        DeclareLaunchArgument('gui', default_value='true',
+        DeclareLaunchArgument('gui', default_value='false',
                               description='Start the Gazebo GUI (gzclient)'),
         DeclareLaunchArgument('world',
                               default_value=PathJoinSubstitution(
                                   [FindPackageShare('scout_description'),
-                                   'worlds', 'scout_empty.world']),
+                                   'worlds', 'small_city.world']),
                               description='Gazebo world file to load'),
         DeclareLaunchArgument('x', default_value='0.0',
                               description='Spawn x position'),
@@ -103,6 +112,7 @@ def generate_launch_description():
                               description='Spawn z position'),
         DeclareLaunchArgument('yaw', default_value='0.0',
                               description='Spawn yaw orientation'),
+        SetEnvironmentVariable('GAZEBO_MODEL_PATH', gazebo_model_path),
         robot_state_publisher,
         gazebo,
         spawn_entity,
