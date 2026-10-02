@@ -96,8 +96,10 @@
          to_color/image_raw, infra1/2, point cloud with correct PCL rgb
          packing; out-of-range points are NaN, not inf).
 
-         D435 parameters: depth 87 deg H-FOV @ 848x480 (yields the spec 58 deg
-         V-FOV), color 69 deg H-FOV, depth range 0.3-10 m, rgb far clip 200 m.
+         D435 parameters: 848x480@30 on all streams; color 69 deg H-FOV,
+         depth FOV matched to color so the two co-located cameras share
+         identical intrinsics (pixel-exact aligned_depth_to_color, see the
+         depth sensor block below), depth range 0.3-10 m, rgb far clip 200 m.
          The infra cameras run at 1 Hz on purpose: nothing in this sim
          consumes them (stereo depth is not simulated), and every camera is
          an extra render pass.
@@ -151,14 +153,21 @@
         <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
     </joint>
 
-    <!-- depth module: 87 deg FOV, 848x480, 0.3-10 m -->
+    <!-- depth module: FOV matched to the color camera (69 deg). Both virtual
+         cameras are co-located on camera_link (zero baseline), so equal FOV
+         + equal resolution = identical intrinsics = pixel-exact
+         aligned_depth_to_color (this mirrors the real D435, whose
+         aligned_depth_to_color stream is by definition depth projected
+         into the color frame). It also makes the plugin's per-pixel cloud
+         coloring exact. The raw 87 deg depth FOV of the real sensor is not
+         published by this plugin anyway. -->
     <gazebo reference="camera_link">
         <sensor name="cameradepth" type="depth">
             <update_rate>30</update_rate>
             <always_on>true</always_on>
             <visualize>false</visualize>
             <camera name="depth">
-                <horizontal_fov>1.51844</horizontal_fov>
+                <horizontal_fov>1.2042</horizontal_fov>
                 <image>
                     <width>848</width>
                     <height>480</height>

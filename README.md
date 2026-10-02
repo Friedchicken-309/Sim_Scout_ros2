@@ -1,5 +1,8 @@
 # Scout 移动机器人仿真工程（ROS 2 Humble + Gazebo Classic）
 
+> **二次开发请先读 [HANDOVER.md](HANDOVER.md)**——面向 Agent/导航开发的交接文档，
+> 包含传感器接口细节（QoS、深度图格式与内参坑）、运动控制特性、对接方式与避坑清单。
+
 本工程用于 Scout v2 四轮滑移转向（skid-steer）移动小车的仿真：默认加载室外小镇场景
 （`small_city`），车头配有按 RealSense D435 参数仿真的深度相机，支持手柄/键盘遥控、
 RViz 可视化与二次开发导航算法。
@@ -99,8 +102,8 @@ ros2 launch scout_description scout_gazebo.launch.py \
 
 | 话题 | 说明 |
 |---|---|
-| `/camera/color/image_raw` | 彩色图（rgb8，独立 69° FOV，远裁剪 200 m） |
-| `/camera/aligned_depth_to_color/image_raw` | 深度图（16UC1，0.3–10 m，与真机驱动同格式） |
+| `/camera/color/image_raw` | 彩色图（rgb8，69° FOV，远裁剪 200 m） |
+| `/camera/aligned_depth_to_color/image_raw` | 深度图（16UC1，0.3–10 m，与 RGB 像素级对齐、内参一致） |
 | `/camera/depth/color/points` | 带颜色点云（超量程点为 NaN，frame 为 `camera_depth_optical_frame`） |
 | `/camera/infra1/image_raw`、`/camera/infra2/image_raw` | 红外流（1 Hz，仿真中按需调高） |
 | `/camera/*/camera_info` | 各流内参 |
